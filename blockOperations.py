@@ -30,15 +30,19 @@ def generate_block_message(block_num):
     txns = res[b'block'][b'txns']
 
     # TODO: add encoding. Previously implemented without raw=True
-    message_list = []
+    message_list = ["block " + str(get_last_round())]
     # Iterating through block transactions
     for txn in txns:
 
         # Iterating through the transactions looking for type: pay
         if txn[b'txn'][b'type'] == b'pay':
+
+            print(txn)
+
             sender = encode_address(txn[b'txn'][b'snd'])
             receiver = None
             amount = 0
+            fee = 0
 
             try:  # Checking to see if the payment transaction contains an 'amt' field (amount of payment)
                 amount = txn[b'txn'][b'amt']
@@ -49,10 +53,12 @@ def generate_block_message(block_num):
                 receiver = encode_address(txn[b'txn'][b'rcv'])
             except KeyError:
                 print("NOTE: This transaction does not have a receiver field")
-
-            fee = txn[b'txn'][b'fee']  # Grabbing fee from transaction
+            try:
+                fee = txn[b'txn'][b'fee']  # Grabbing fee from transaction
+            except KeyError:
+                print("NOTE: This transaction does not have a fee field")
             cost = amount + fee  # Grabbing total charge to account given constraints of project
-            print("Transaction amount: " + str(amount) + " Transaction Fee: " + str(
+            print("Sender: " + sender + ", Receiver: " + receiver + "\nTransaction amount: " + str(amount) + " Transaction Fee: " + str(
                 fee) + " Total Transaction Cost: " + str(cost) + " MicroAlgos\n")
             # TODO: send this data to kafka producer
 
