@@ -1,5 +1,6 @@
 import base64
 import json
+import urllib.error
 
 import algosdk
 from algosdk.v2client import algod
@@ -80,17 +81,15 @@ def generate_block_message(block_num):
 
 
 def get_last_round():
-    return algod_client.status().get('last-round')
-
-
-def init():
-    global LAST_ROUND
-    LAST_ROUND = algod_client.status().get('last-round')
+    try:
+        return algod_client.status().get('last-round')
+    except urllib.error.HTTPError and algosdk.error.AlgodHTTPError:
+        return get_last_round()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    init()
+
     # txn(get_block_info(LAST_ROUND))
     generate_block_message();
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

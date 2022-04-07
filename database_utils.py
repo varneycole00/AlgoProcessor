@@ -22,8 +22,12 @@ def get_account_balance(account):
 
 
 def create_account(account):
-    cur.execute("insert into accounts (acctID, balance) values(?, ?)", (account, 0))
-    con.commit()
+    try:
+        cur.execute("insert into accounts (acctID, balance) values(?, ?)", (account, 0))
+        con.commit()
+    except sqlite3.IntegrityError:
+        # Trying to create an account that already exists
+        return
 
 
 def update_balance(account, balance):
@@ -54,3 +58,16 @@ def set_current_block_progress(block):
     con.commit()
 
 
+# This function really only exists for text purposes, there's no reason under the constraints to need this
+def remove_account(account):
+    cur.execute("delete from accounts where acctID = ?", (account,))
+    con.commit()
+
+
+def account_exists(account):
+    cur.execute("select balance from accounts where acctID = ?", (account,))
+    con.commit()
+    ret = cur.fetchone()
+
+    if ret is None:
+        return False

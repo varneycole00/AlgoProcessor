@@ -58,7 +58,9 @@ if __name__ == '__main__':
 
                     print("last processed: " + str(last_processed) + ", last sent: " + str(last_sent) +
                           ", Network current block status: " + str(get_last_round()))
-                except urllib.error.HTTPError:
+                except urllib.error.HTTPError and algosdk.error.AlgodHTTPError:
+                    # Continuing here will send the same block that previously failed due to api gateway issues
+                    # Simply will keep trying until there is no more http 504 error
                     continue
 
 

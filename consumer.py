@@ -11,7 +11,7 @@ if __name__ == '__main__':
         auto_offset_reset='latest'
     )
 
-    for message in consumer:
+    def handle_message(message):
         print("________________________New Block___________________________")
         message_dict = ast.literal_eval(json.loads(message.value))
         current_block = message_dict['block']
@@ -40,3 +40,7 @@ if __name__ == '__main__':
         database_utils.set_current_block_progress(current_block)
         print("updated last processed")
         print(database_utils.get_current_block_progress())
+
+
+    for message in consumer:
+        handle_message(message)
