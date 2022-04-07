@@ -30,14 +30,15 @@ def generate_block_message(block_num):
     txns = res[b'block'][b'txns']
 
     # TODO: add encoding. Previously implemented without raw=True
-    message_list = ["block " + str(get_last_round())]
+    message_list = {"block": str(block_num), "transactions": {}}
+    transaction_number = 0
     # Iterating through block transactions
     for txn in txns:
 
         # Iterating through the transactions looking for type: pay
         if txn[b'txn'][b'type'] == b'pay':
 
-            print(txn)
+            # print(txn)
 
             sender = encode_address(txn[b'txn'][b'snd'])
             receiver = None
@@ -47,27 +48,32 @@ def generate_block_message(block_num):
             try:  # Checking to see if the payment transaction contains an 'amt' field (amount of payment)
                 amount = txn[b'txn'][b'amt']
             except KeyError:
-                print("NOTE: This payment doesn't have an amount specified")
+                continue
+                # print("NOTE: This payment doesn't have an amount specified")
 
             try:  # Checking if transaction has a valid receiver address
                 receiver = encode_address(txn[b'txn'][b'rcv'])
             except KeyError:
-                print("NOTE: This transaction does not have a receiver field")
+                continue
+                # print("NOTE: This transaction does not have a receiver field")
             try:
                 fee = txn[b'txn'][b'fee']  # Grabbing fee from transaction
             except KeyError:
-                print("NOTE: This transaction does not have a fee field")
+                continue
+                # print("NOTE: This transaction does not have a fee field")
             cost = amount + fee  # Grabbing total charge to account given constraints of project
-            print("Sender: " + sender + ", Receiver: " + receiver + "\nTransaction amount: " + str(amount) + " Transaction Fee: " + str(
-                fee) + " Total Transaction Cost: " + str(cost) + " MicroAlgos\n")
+            # print("Sender: " + sender + ", Receiver: " + receiver + "\nTransaction amount: " + str(amount) + " Transaction Fee: " + str(
+            #    fee) + " Total Transaction Cost: " + str(cost) + " MicroAlgos\n")
             # TODO: send this data to kafka producer
 
-            message_list.append({
+            message_list["transactions"][transaction_number] = {
                 'sender': sender,
                 'receiver': receiver,
                 'transaction amount': amount,
                 'fee': fee,
-            })
+            }
+
+            transaction_number = transaction_number + 1
 
     produced_message = json.dumps(message_list)
     return produced_message
