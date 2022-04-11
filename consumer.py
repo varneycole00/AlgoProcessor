@@ -30,11 +30,13 @@ def handle_message(message):
         fee = current_transaction_dict['fee']
         amount = current_transaction_dict['transaction amount']
 
-        # Change balance of sender
-        database_utils.remove_from_balance(current_transaction_dict["sender"], fee + amount)
+        database_utils.handle_transaction(sender, receiver, amount, fee)
 
-        # Change Balance of receiver
-        database_utils.add_to_balance(current_transaction_dict["receiver"], amount)
+        # # Change balance of sender
+        # database_utils.remove_from_balance(current_transaction_dict["sender"], fee + amount)
+        #
+        # # Change Balance of receiver
+        # database_utils.add_to_balance(current_transaction_dict["receiver"], amount)
 
         current_transaction_num += 1
 

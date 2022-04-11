@@ -10,6 +10,14 @@ cur.execute("create table if not exists metadata (key varchar(20) primary key, v
 con.commit()
 
 
+def handle_transaction(snd, rcv, amt, fee):
+    cursor = con.cursor()
+    remove_from_balance(snd, amt + fee, cursor)
+    add_to_balance(rcv, amt, cursor)
+    con.commit()
+    cursor.close()
+
+
 def get_account_balance(account):
     cur.execute("select balance from accounts where acctID = ?", (account,))
     con.commit()
@@ -30,21 +38,20 @@ def create_account(account):
         return
 
 
-def update_balance(account, balance):
-    cur.execute("update accounts set balance = ? where acctID = ?", (balance, account))
-    con.commit()
+def update_balance(account, balance, cursor):
+    cursor.execute("update accounts set balance = ? where acctID = ?", (balance, account))
 
 
-def remove_from_balance(account, to_remove):
+def remove_from_balance(account, to_remove, cursor):
     starting_bal = get_account_balance(account)
     new_bal = starting_bal - to_remove
-    update_balance(account, new_bal)
+    update_balance(account, new_bal, cursor)
 
 
-def add_to_balance(account, to_add):
+def add_to_balance(account, to_add, cursor):
     starting_bal = get_account_balance(account)
     new_bal = starting_bal + to_add
-    update_balance(account, new_bal)
+    update_balance(account, new_bal, cursor)
 
 
 def get_current_block_progress():
