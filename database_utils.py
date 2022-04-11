@@ -53,8 +53,19 @@ def get_current_block_progress():
     return cur.fetchone()[0]
 
 
+def get_currently_processing():
+    cur.execute("select value from metadata where key = 'processing'")
+    con.commit()
+    return cur.fetchone()[0]
+
+
 def set_current_block_progress(block):
     cur.execute("update metadata set value = ? where key = 'block status'", (block,))
+    con.commit()
+
+
+def set_currently_processing(block):
+    cur.execute("update metadata set value = ? where key = 'processing'", (block,))
     con.commit()
 
 
