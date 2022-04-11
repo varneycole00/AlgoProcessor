@@ -1,15 +1,13 @@
-import base64
 import json
 import urllib.error
 
 import algosdk
 from algosdk.v2client import algod
-from algosdk.encoding import decode_address, encode_address
-from algosdk import encoding
+from algosdk.encoding import encode_address
 import msgpack
 
 algod_address = "https://mainnet-algorand.api.purestake.io/ps2"
-algod_token = 'oWqGS9gepoOUGq2axkfk3colf3zPybB3tlMoLik1'
+algod_token = 'oWqGS9gepoOUGq2axkfk3colf3zPybB3tlMoLik1'  # Usually would hide this but in this case I decided not to
 
 headers = {
     "X-API-KEY": algod_token
@@ -30,16 +28,14 @@ def generate_block_message(block_num):
     # Grabbing transactions from the block
     txns = res[b'block'][b'txns']
 
-    # TODO: add encoding. Previously implemented without raw=True
     message_list = {"block": str(block_num), "transactions": {}}
     transaction_number = 0
+
     # Iterating through block transactions
     for txn in txns:
 
         # Iterating through the transactions looking for type: pay
         if txn[b'txn'][b'type'] == b'pay':
-
-            # print(txn)
 
             sender = encode_address(txn[b'txn'][b'snd'])
             receiver = None
@@ -50,22 +46,16 @@ def generate_block_message(block_num):
                 amount = txn[b'txn'][b'amt']
             except KeyError:
                 continue
-                # print("NOTE: This payment doesn't have an amount specified")
 
             try:  # Checking if transaction has a valid receiver address
                 receiver = encode_address(txn[b'txn'][b'rcv'])
             except KeyError:
                 continue
-                # print("NOTE: This transaction does not have a receiver field")
+
             try:
                 fee = txn[b'txn'][b'fee']  # Grabbing fee from transaction
             except KeyError:
                 continue
-                # print("NOTE: This transaction does not have a fee field")
-            cost = amount + fee  # Grabbing total charge to account given constraints of project
-            # print("Sender: " + sender + ", Receiver: " + receiver + "\nTransaction amount: " + str(amount) + " Transaction Fee: " + str(
-            #    fee) + " Total Transaction Cost: " + str(cost) + " MicroAlgos\n")
-            # TODO: send this data to kafka producer
 
             message_list["transactions"][transaction_number] = {
                 'sender': sender,

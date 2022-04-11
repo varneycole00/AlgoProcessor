@@ -1,6 +1,4 @@
 import ast
-import sys
-
 import database_utils
 from kafka import KafkaConsumer
 import json
@@ -8,7 +6,6 @@ import json
 
 def handle_message(message):
     message_dict = ast.literal_eval(json.loads(message.value))
-    # message_dict = json.loads(message.value)
     current_block = message_dict['block']
     current_transaction_num = 0
     transactions = message_dict['transactions']
@@ -27,14 +24,15 @@ def handle_message(message):
         fee = current_transaction_dict['fee']
         amount = current_transaction_dict['transaction amount']
 
+        # Process the transaction in storage
         database_utils.handle_transaction(sender, receiver, amount, fee)
 
+        # Increment counter so next loop hits the next transaction
         current_transaction_num += 1
 
+    # Denote to system that current block was fully processed
     database_utils.set_current_block_progress(current_block)
     print("Processed block " + current_block)
-
-    # print(database_utils.get_current_block_progress())
 
 
 def start_consumer():
