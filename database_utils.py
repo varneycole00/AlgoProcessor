@@ -1,13 +1,7 @@
 import sqlite3
 
-con = sqlite3.connect('DB.sqlite')
+con = sqlite3.connect('db.sqlite')
 cur = con.cursor()
-
-print('connection established')
-
-cur.execute("create table if not exists accounts (acctID varchar(58) primary key, balance int);")
-cur.execute("create table if not exists metadata (key varchar(20) primary key, value int  );")
-con.commit()
 
 
 def handle_transaction(snd, rcv, amt, fee):
@@ -89,3 +83,7 @@ def account_exists(account):
 
     if ret is None:
         return False
+
+
+def get_cursor():
+    return con.cursor()

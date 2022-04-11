@@ -73,25 +73,38 @@ class TestDatabaseUtils(unittest.TestCase):
         database_utils.remove_account("ABCDEFG")
 
     def test_update_balance(self):
+        cursor = database_utils.get_cursor()
         database_utils.create_account("TEST UPDATE")
-        database_utils.update_balance("TEST UPDATE", 2000000)
+        database_utils.update_balance("TEST UPDATE", 2000000, cursor)
         bal = database_utils.get_account_balance("TEST UPDATE")
         assert bal == 2000000
         database_utils.remove_account("TEST UPDATE")
+        cursor.close()
 
     def test_add_to_balance(self):
+        cursor = database_utils.get_cursor()
         start_bal = database_utils.get_account_balance("TEST ADD")
-        database_utils.add_to_balance("TEST ADD", 200)
+        database_utils.add_to_balance("TEST ADD", 200, cursor)
         end_bal = database_utils.get_account_balance("TEST ADD")
         assert start_bal == end_bal - 200
         database_utils.remove_account("TEST ADD")
+        cursor.close()
 
     def test_remove_from_balance(self):
+        cursor = database_utils.get_cursor()
         start_bal = database_utils.get_account_balance("TEST REMOVE")
-        database_utils.remove_from_balance("TEST REMOVE", 200)
+        database_utils.remove_from_balance("TEST REMOVE", 200, cursor)
         end_bal = database_utils.get_account_balance("TEST REMOVE")
         assert start_bal == end_bal + 200
         database_utils.remove_account("TEST REMOVE")
+        cursor.close()
+
+    def test_handle_transaction(self):
+        database_utils.get_account_balance("TEST HANDLE SND")
+        database_utils.get_account_balance("TEST HANDLE RCV")
+        database_utils.handle_transaction("TEST HANDLE SND", "TEST HANDLE RCV", 2000000, 1000)
+        assert database_utils.get_account_balance("TEST HANDLE SND") == -2001000
+        assert database_utils.get_account_balance("TEST HANDLE RCV") == 2000000
 
 
 if __name__ == '__main__':
