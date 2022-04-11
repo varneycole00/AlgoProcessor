@@ -24,7 +24,7 @@ Start the zookeeper server using
 kafka-directory-on-your-machine/bin/zookeeper-server-start.sh config/zookeeper.properties
 ```
 
-and start the kafka server with 
+In a different terminal window start the kafka server with 
 ```commandline
 kafka-directory-on-your-machine/bin/kafka-server-start.sh config/server.properties
 ```
@@ -33,10 +33,11 @@ Next, ensure that there is a topic created on your kafka server called 'transact
 
 ## Running the system
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+After completing all previous steps, run the consumer script with:
+```commandline
+python consumer.py
+```
+Then, in a different terminal, run the producer script with:
+```commandline
+python producer.py
+```
